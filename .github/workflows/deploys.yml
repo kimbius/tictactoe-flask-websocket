@@ -34,7 +34,7 @@ jobs:
         with:
           project: luatect
           location: gke.cluster-rcf2
-          name: bksc-exports
+          name: tictactoe-flask-websocket
           image: ghcr.io/${{ env.REPO }}@${{ steps.docker_build.outputs.digest }}
         env:
           DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
