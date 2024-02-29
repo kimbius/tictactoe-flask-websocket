@@ -1,0 +1,42 @@
+{% include 'partials/head.html' %}
+<div
+  class="h-screen flex flex-col md:flex-row items-center justify-center gap-6"
+>
+  <img width="250" src="https://placehold.co/500/facc15/fff?text=1:1" alt="" />
+  <div class="flex items-center flex-col gap-3">
+    <div class="space-x-1">
+      <input
+        id="room_code"
+        type="text"
+        class="active:scale-105 transition-all duration-100 rounded-full bg-neutral-200 px-4 py-2 font-bold text-center text-xl"
+        placeholder="รหัสห้อง"
+      />
+      <button
+        onclick="location.replace(`/room?code=${room_code.value}`)"
+        class="active:scale-105 transition-all duration-100 px-4 py-2 bg-emerald-400 hover:bg-emerald-500 font-bold text-white rounded-full text-xl uppercase"
+      >
+        เข้าร่วม
+      </button>
+    </div>
+    <button
+      onclick="createRoom()"
+      class="active:scale-105 transition-all duration-100 px-4 py-2 bg-blue-400 hover:bg-blue-500 font-bold text-white rounded-full text-lg w-full uppercase"
+    >
+      สร้างห้อง
+    </button>
+  </div>
+</div>
+
+<script defer>
+  const createRoom = () => {
+    fetch("/api/room", {
+      method: "POST",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        location.replace("/room?code=" + data.code);
+      });
+  };
+</script>
+
+{% include 'partials/foot.html' %}
