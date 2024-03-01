@@ -148,4 +148,4 @@ def echo(sock):
                         "d": None
                     })
                 )
-        del rooms[room.id]
+    del rooms[room.id]
