@@ -33,9 +33,18 @@
     }
   }
 
-  svg {
+  svg.xo-icon {
     width: 4em;
     height: 4em;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
 </style>
 
@@ -52,18 +61,92 @@
 </div>
 
 <div
+  id="invite_window"
+  class="z-50 hidden fixed top-0 left-0 w-full h-full bg-gray-800 flex flex-col justify-center items-center text-white gap-4"
+>
+  <h4 class="font-bold text-lg">แชร์ให้กับเพื่อน</h4>
+  <div id="invite_qrcode"></div>
+  <a id="invite_link" class="text-xs text-gray-200" target="_blank"> blablabla </a>
+  <button
+    onclick="invite_window.classList.add('hidden')"
+    class="active:scale-105 transition-all duration-100 p-2 bg-red-400 hover:bg-red-500 font-bold text-white rounded-md text-base uppercase"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="w-5 h-5"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"
+      />
+      <path
+        fill-rule="evenodd"
+        d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"
+      />
+    </svg>
+  </button>
+</div>
+
+<div
   class="w-full h-auto fixed flex items-center justify-center z-10 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2"
 >
   <div
     class="w-full max-w-xs sm:max-w-sm md:max-w-md h-full flex flex-col gap-2"
   >
-    <div id="room_id_parent" class="mx-auto mb-4">
-      <h1
-        id="room_id"
-        class="font-bold text-gray-800 text-xl font-bold rounded-full px-4 py-2 bg-white"
-      >
-        Unknown
-      </h1>
+    <div
+      id="room_id_parent"
+      class="flex flex-col justify-center items-center gap-4 mb-4"
+    >
+      <div class="flex items-center gap-2">
+        <h1
+          id="room_id"
+          class="font-bold text-gray-800 text-xl font-bold rounded-full px-4 py-2 bg-white"
+        >
+          Unknown
+        </h1>
+        <button
+          onclick="invite_window.classList.remove('hidden')"
+          class="active:scale-105 transition-all duration-100 p-2 bg-amber-400 hover:bg-amber-500 font-bold text-white rounded-md text-base uppercase"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5"
+            />
+          </svg>
+        </button>
+        <button
+          id="leave_btn"
+          onclick="location.replace('/')"
+          class="active:scale-105 transition-all duration-100 p-2 bg-red-400 hover:bg-red-500 font-bold text-white rounded-md text-base uppercase"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-5 h-5"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"
+            />
+            <path
+              fill-rule="evenodd"
+              d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"
+            />
+          </svg>
+        </button>
+      </div>
+      <p class="text-xs text-white text-center">
+        ผลงานชิ้นนี้เป็นส่วนหนึ่งของรายวิชา
+        <b>การเขียนโปรแกรมคอมพิวเตอร์ (ว31284)</b>
+      </p>
     </div>
     <div class="flex justify-between text-white">
       <div class="text-left">
@@ -75,31 +158,85 @@
         <h2 class="text-xs" id="player2_txt">None</h2>
       </div>
     </div>
-    <div class="grid grid-cols-3 gap-2" id="grid"></div>
-    <div class="mx-auto" id="btn_group">
-      <button
-        id="share_btn"
-        class="mt-2 active:scale-105 transition-all duration-100 px-4 py-2 bg-amber-400 hover:bg-amber-500 font-bold text-white rounded-full text-base uppercase"
+    <div class="relative p-2">
+      <div
+        id="x_turn_overlay"
+        class="z-10 absolute top-0 left-0 w-full h-full bg-black/50 text-white flex flex-col items-center justify-center text-center"
       >
-        แชร์ห้อง
-      </button>
-      <button
-        onclick="location.replace('/')"
-        id="leave_btn"
-        class="mt-2 active:scale-105 transition-all duration-100 px-4 py-2 bg-amber-400 hover:bg-amber-500 font-bold text-white rounded-full text-base uppercase"
+        <span class="mb-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-10 h-10"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"
+            />
+          </svg>
+        </span>
+        <span class="text-base">TURN</span>
+      </div>
+      <div
+        id="o_turn_overlay"
+        class="z-10 absolute top-0 left-0 w-full h-full bg-black/50 text-white flex flex-col items-center justify-center text-center"
       >
-        ออกห้อง
-      </button>
+        <span class="mb-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-10 h-10"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"
+            />
+          </svg>
+        </span>
+        <span class="text-base">TURN</span>
+      </div>
+      <div class="grid grid-cols-3 gap-2" id="grid"></div>
     </div>
   </div>
 </div>
 
 <div class="z-0 fixed h-full w-full left-0 top-0 flex">
+  <div
+    id="waiting_for_player_overlay"
+    class="absolute left-0 top-0 w-full h-full z-10 bg-gray-900 py-4 flex flex-col justify-between"
+  >
+    <div
+      class="text-white/25 uppercase font-bold text-xl line-clamp-1 text-center leading-1.5"
+    >
+      กำลังรอผู้เล่น
+    </div>
+    <div
+      class="text-white/25 uppercase font-bold text-xl line-clamp-1 text-center leading-1.5"
+    >
+      กำลังรอผู้เล่น
+    </div>
+  </div>
   <div id="player1_side" class="w-1/2 bg-blue-600 h-full duration-500"></div>
   <div id="player2_side" class="w-1/2 bg-red-600 h-full duration-500"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script defer src="/static/main.js"></script>
+<script defer>
+  const qr_data = new URL("/room", location.origin);
+  qr_data.searchParams.append("code", new URLSearchParams(location.search).get("code"));
+
+  new QRCode(document.getElementById("invite_qrcode"), {
+    text: qr_data.toString(),
+    width: 256,
+    height: 256,
+    colorDark: "#fff",
+    colorLight: "#1f2937",
+    correctLevel: QRCode.CorrectLevel.H,
+  });
+
+  document.getElementById("invite_link").innerText = qr_data.toString();
+</script>
 
 {% include 'partials/foot.html' %}

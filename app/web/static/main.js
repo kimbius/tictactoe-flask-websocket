@@ -10,7 +10,7 @@ io.addEventListener("open", () => {
         d: "ping",
       })
     );
-  }, 5000);
+  }, 1000 * 10);
   io.send(
     JSON.stringify({
       t: "join",
@@ -60,18 +60,74 @@ function checkWin(board) {
 }
 
 const grids = [];
-leave_btn.hidden = true;
+// leave_btn.hidden = true;
+
+const updateGrids = () => {
+  grids.forEach((elem, index) => {
+    if (!elem.classList.contains("bg-white")) {
+      if (room["player1"]["grid"][index]) {
+        elem.classList.remove("bg-white/30");
+        elem.classList.add("bg-white");
+        elem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="xo-icon" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+    </svg>`;
+        elem.disabled = true;
+      } else if (room["player2"]["grid"][index]) {
+        elem.classList.remove("bg-white/30");
+        elem.classList.add("bg-white");
+        elem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="xo-icon" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+    </svg>`;
+        elem.disabled = true;
+      } else {
+        if (
+          (room["turn"] && room["player1"]["id"] === myPlayerId) ||
+          (!room["turn"] && room["player2"]["id"] === myPlayerId)
+        ) {
+          // is not my turn
+          elem.disabled = true;
+        } else {
+          elem.disabled = false;
+        }
+      }
+    }
+  });
+  if (isReadyToPlay) {
+    const player1IsMe = room["player1"]["id"] === myPlayerId;
+    const player2IsMe = room["player2"]["id"] === myPlayerId;
+    const isPlayer1Turn = !room["turn"];
+
+    if (isPlayer1Turn && player1IsMe) {
+      x_turn_overlay.classList.add("hidden");
+      o_turn_overlay.classList.add("hidden");
+    } else if (!isPlayer1Turn && player1IsMe) {
+      x_turn_overlay.classList.add("hidden");
+      o_turn_overlay.classList.remove("hidden");
+    }
+
+    if (!isPlayer1Turn && player2IsMe) {
+      x_turn_overlay.classList.add("hidden");
+      o_turn_overlay.classList.add("hidden");
+    } else if (isPlayer1Turn && player2IsMe) {
+      x_turn_overlay.classList.remove("hidden");
+      o_turn_overlay.classList.add("hidden");
+    }
+  }
+};
+
+x_turn_overlay.classList.add("hidden");
+o_turn_overlay.classList.add("hidden");
 
 io.addEventListener("message", (message) => {
   try {
     const data = JSON.parse(message.data);
-    console.log(`${data["t"]} > ${data["d"]}`);
+    console.log(`${data["t"]} >`, data["d"]);
     switch (data["t"]) {
       case "force_end":
         Swal.fire({
           title: "เสมอ!",
           text: "เนื่องจากมีผู้เล่นออกจากห้อง เกมนี้จึงเสมอ",
-          icon: "info",
+          icon: "warning",
         }).then(() => {
           location.replace("/");
         });
@@ -82,9 +138,8 @@ io.addEventListener("message", (message) => {
       case "ready":
         room = data["d"];
         room_id_parent.hidden = true;
-        share_btn.hidden = true;
-        btn_group.hidden = true;
         isReadyToPlay = true;
+        waiting_for_player_overlay.remove();
 
         for (let index = 0; index < 9; index++) {
           const elem = document.createElement("button");
@@ -100,19 +155,23 @@ io.addEventListener("message", (message) => {
           grid.append(elem);
           grids.push(elem);
         }
+
+        updateGrids();
         break;
       case "win":
       case "draw":
+        x_turn_overlay.classList.add("hidden");
+        o_turn_overlay.classList.add("hidden");
         const winGrid = checkWin(
           [room["player1"], room["player2"]].find(({ id }) => id === data["d"])
             ?.grid
         );
-        btn_group.hidden = false;
         leave_btn.hidden = false;
         if (!winGrid) {
           Swal.fire({
             title: "Draw",
             text: "Y'all good",
+            icon: "info",
           });
           return;
         }
@@ -171,10 +230,12 @@ io.addEventListener("message", (message) => {
           default:
             break;
         }
+        break;
       case "update":
         if (data["d"] === false) {
           Swal.fire({
             title: "ไม่พบห้องนี้ / ห้องเต็มแล้ว",
+            icon: "error",
           }).then(() => location.replace("/"));
           return;
         }
@@ -199,35 +260,7 @@ io.addEventListener("message", (message) => {
           player1_side.classList.remove("scale-125");
         }
 
-        for (let index = 0; index < 9; index++) {
-          const elem = document.querySelector(`button[data-idx=\"${index}\"]`);
-          if (elem.classList.contains("bg-white")) continue;
-          if (data["d"]["player1"]["grid"][index]) {
-            elem.classList.remove("bg-white/30");
-            elem.classList.add("bg-white");
-            elem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
-          </svg>`;
-            elem.disabled = true;
-          } else if (data["d"]["player2"]["grid"][index]) {
-            elem.classList.remove("bg-white/30");
-            elem.classList.add("bg-white");
-            elem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-          </svg>`;
-            elem.disabled = true;
-          } else {
-            if (
-              (room["turn"] && room["player1"]["id"] === myPlayerId) ||
-              (!room["turn"] && room["player2"]["id"] === myPlayerId)
-            ) {
-              // is not my turn
-              elem.disabled = true;
-            } else {
-              elem.disabled = false;
-            }
-          }
-        }
+        updateGrids();
 
         break;
       default:
