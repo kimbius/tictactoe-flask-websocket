@@ -13,6 +13,7 @@ class Room(BaseModel):
     player1: Player = Player()
     player2: Player = Player()
     turn: bool = False
+    rematch_request_by: str | None = None
 
     def joinRoom(self, playerId: str):
         if not self.isHasSpaceForPlayer():

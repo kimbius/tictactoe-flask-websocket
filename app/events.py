@@ -26,31 +26,32 @@ def echo(sock):
                 isRoomExists = room_code in rooms
                 if isRoomExists:
                     room = rooms[room_code]
-                    if room.joinRoom(sock._id):
-                        sock.send(
-                            json.dumps({
-                                "t": "hello",
-                                "d": {
-                                    "player_id": sock._id,
-                                    "room_code": room.id
-                                }
-                            })
-                        )
-                        for client in clients:
-                            if room.isPlayerInRoom(client._id):
-                                client.send(
-                                    json.dumps({
-                                        "t": "update",
-                                        "d": room.dict()
-                                    })
-                                )
-                                if room.isReadyToPlay():
+                    if room:
+                        if room.joinRoom(sock._id):
+                            sock.send(
+                                json.dumps({
+                                    "t": "hello",
+                                    "d": {
+                                        "player_id": sock._id,
+                                        "room_code": room.id
+                                    }
+                                })
+                            )
+                            for client in clients:
+                                if room.isPlayerInRoom(client._id):
                                     client.send(
                                         json.dumps({
-                                            "t": "ready",
+                                            "t": "update",
                                             "d": room.dict()
                                         })
                                     )
+                                    if room.isReadyToPlay():
+                                        client.send(
+                                            json.dumps({
+                                                "t": "ready",
+                                                "d": room.dict()
+                                            })
+                                        )
 
                     else:
                         sock.send(
@@ -103,6 +104,34 @@ def echo(sock):
                                                 "d": str(whoWin)
                                             })
                                         )
+            elif data["t"] == "rematch":
+                room = whichRoomForPlayer(sock._id)
+                if room:
+                    room.rematch_request_by = sock._id
+                    for client in clients:
+                        if client._id != sock._id and room.isPlayerInRoom(client._id):
+                            client.send(
+                                json.dumps({
+                                    "t": "rematch",
+                                    "d": None
+                                })
+                            )
+            elif data["t"] == "accept_rematch":
+                room = whichRoomForPlayer(sock._id)
+                if room:
+                    if room.rematch_request_by and room.rematch_request_by != sock._id:
+                        roomId = secrets.token_hex(3)
+                        newRoom = app.utils.models.Room(id=roomId)
+                        rooms[newRoom.id] = newRoom
+                        for client in clients:
+                            if room.isPlayerInRoom(client._id):
+                                client.send(
+                                    json.dumps({
+                                        "t": "rematch_accepted",
+                                        "d": newRoom.id
+                                    })
+                                )
+                        del rooms[room.id]
 
         except Exception as inst:
             break
@@ -119,3 +148,4 @@ def echo(sock):
                         "d": None
                     })
                 )
+        del rooms[room.id]

@@ -117,16 +117,56 @@ const updateGrids = () => {
 
 x_turn_overlay.classList.add("hidden");
 o_turn_overlay.classList.add("hidden");
+rematch_btn.hidden = true;
+
+const getWinGrid = (playerWin) =>
+  checkWin(
+    [room["player1"], room["player2"]].find(({ id }) => id === playerWin)?.grid
+  );
+
+let isEnd = false;
+rematch_btn.addEventListener("click", () => {
+  if (!isEnd) return;
+  rematch_btn.hidden = true;
+  io.send(
+    JSON.stringify({
+      t: "rematch",
+      d: null,
+    })
+  );
+});
 
 io.addEventListener("message", (message) => {
   try {
     const data = JSON.parse(message.data);
     console.log(`${data["t"]} >`, data["d"]);
     switch (data["t"]) {
+      case "rematch_accepted":
+        const url = new URL("/room", location.origin);
+        url.searchParams.append("code", data["d"]);
+        location.replace(url);
+        break;
+      case "rematch":
+        Swal.fire({
+          title: "มีคำท้าทายมาใหม่!",
+          text: "ผู้เล่นฝ่ายตรงข้ามท้าทายคุณใหม่อีกครั้ง คุณต้องการตอบรับคำท้าทายนี้หรือไม?",
+          icon: "warning",
+          showCancelButton: true,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            io.send(
+              JSON.stringify({
+                t: "accept_rematch",
+                d: null,
+              })
+            );
+          }
+        });
+        break;
       case "force_end":
         Swal.fire({
-          title: "เสมอ!",
-          text: "เนื่องจากมีผู้เล่นออกจากห้อง เกมนี้จึงเสมอ",
+          title: "การแข่งขันจบลงแล้ว!",
+          text: "เนื่องจากมีผู้เล่นออกจากห้อง เกมนี้จึงจบ🥲",
           icon: "warning",
         }).then(() => {
           location.replace("/");
@@ -138,6 +178,8 @@ io.addEventListener("message", (message) => {
       case "ready":
         room = data["d"];
         room_id_parent.hidden = true;
+        invite_window.classList.add("hidden");
+        invite_btn.hidden = true;
         isReadyToPlay = true;
         waiting_for_player_overlay.remove();
 
@@ -160,17 +202,18 @@ io.addEventListener("message", (message) => {
         break;
       case "win":
       case "draw":
+        isEnd = true;
         x_turn_overlay.classList.add("hidden");
         o_turn_overlay.classList.add("hidden");
-        const winGrid = checkWin(
-          [room["player1"], room["player2"]].find(({ id }) => id === data["d"])
-            ?.grid
-        );
+        const winGrid = getWinGrid(data["d"]);
         leave_btn.hidden = false;
+        rematch_btn.hidden = false;
         if (!winGrid) {
+          player1_side.classList.remove("scale-125");
+          player2_side.classList.remove("scale-125");
           Swal.fire({
-            title: "Draw",
-            text: "Y'all good",
+            title: "เสมอ",
+            text: "โห~ พวกคุณเก่งกันจริงๆ",
             icon: "info",
           });
           return;
