@@ -139,13 +139,24 @@ def echo(sock):
     clients.remove(sock)
     
     room = whichRoomForPlayer(sock._id)
-    if not room.isEnd():
-        for client in clients:
-            if room.isPlayerInRoom(client._id):
-                client.send(
-                    json.dumps({
-                        "t": "force_end",
-                        "d": None
-                    })
-                )
-    del rooms[room.id]
+    if room:
+        if not room.isEnd():
+            for client in clients:
+                if room.isPlayerInRoom(client._id):
+                    client.send(
+                        json.dumps({
+                            "t": "force_end",
+                            "d": None
+                        })
+                    )
+        else:
+            for client in clients:
+                if room.isPlayerInRoom(client._id):
+                    client.send(
+                        json.dumps({
+                            "t": "leave",
+                            "d": None
+                        })
+                    )
+
+        del rooms[room.id]

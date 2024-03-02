@@ -35,17 +35,17 @@ class Room(BaseModel):
         if check_win_combo(self.player2.grid):
             return self.player2.id
         return False
+    
+    def isGridSelected(self, gridIdx):
+        return (self.player1.grid[gridIdx] or self.player2.grid[gridIdx])
 
     def selectGrid(self, playerId, selectIdx):
-        if not self.isReadyToPlay():
-            return False
-        if self.checkWin():
-            return False
         selectIdx = int(selectIdx)
-        if selectIdx < 0 and selectIdx > 8:
+        if (selectIdx < 0 or selectIdx > 8) or not self.isReadyToPlay() or self.checkWin():
             return False
-        if not self.isPlayerTurn(playerId):
+        if not self.isPlayerTurn(playerId) or self.isGridSelected(selectIdx):
             return False
+        
         if self.player1.id == playerId:
             self.player1.grid[selectIdx] = True
         else:

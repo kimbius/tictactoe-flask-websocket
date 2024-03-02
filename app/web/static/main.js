@@ -141,6 +141,9 @@ io.addEventListener("message", (message) => {
     const data = JSON.parse(message.data);
     console.log(`${data["t"]} >`, data["d"]);
     switch (data["t"]) {
+      case "leave":
+        rematch_btn.disabled = true;
+        break;
       case "rematch_accepted":
         const url = new URL("/room", location.origin);
         url.searchParams.append("code", data["d"]);
